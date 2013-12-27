@@ -4,9 +4,6 @@ import socket
 
 import pybonjour
 
-
-
-
 #get hostname advertised in mDNS
 def getHostName(hostname):
     return socket.gethostbyname(hostname)

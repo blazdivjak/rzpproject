@@ -5,7 +5,7 @@ import sys
 import pybonjour
 
 
-regtype  = sys.argv[1]
+#regtype  = sys.argv[1]
 timeout  = 5
 resolved = []
 
@@ -50,17 +50,21 @@ def browse_callback(sdRef, flags, interfaceIndex, errorCode, serviceName,
     finally:
         resolve_sdRef.close()
 
+#python browseServices.py _VirtualSpeaker._udp
+def resolve_service(regtype='_VirtualSpeaker._udp'):
+    browse_sdRef = pybonjour.DNSServiceBrowse(regtype = regtype,
+                                              callBack = browse_callback)
 
-browse_sdRef = pybonjour.DNSServiceBrowse(regtype = regtype,
-                                          callBack = browse_callback)
-
-try:
     try:
-        while True:
-            ready = select.select([browse_sdRef], [], [])
-            if browse_sdRef in ready[0]:
-                pybonjour.DNSServiceProcessResult(browse_sdRef)
-    except KeyboardInterrupt:
-        pass
-finally:
-    browse_sdRef.close()
+        try:
+            while True:
+                ready = select.select([browse_sdRef], [], [])
+                if browse_sdRef in ready[0]:
+                    pybonjour.DNSServiceProcessResult(browse_sdRef)
+        except KeyboardInterrupt:
+            pass
+    finally:
+        browse_sdRef.close()
+
+#MAIN
+#resolve_service()
