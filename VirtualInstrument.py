@@ -114,7 +114,7 @@ while(1):
 
     #TODO: Create MIDI
 
-    #TODO: Stream to sockets
+    #Stream to sockets
 
     #msg = raw_input('Enter message to send : ')
     for key,value in browse.services.items():
