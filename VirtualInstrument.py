@@ -8,6 +8,7 @@ import select
 import sys
 import pybonjour
 import settings
+import socket
 
 class BrowseService(threading.Thread):
     """
@@ -90,12 +91,21 @@ class BrowseService(threading.Thread):
 browse = BrowseService(settings.SERVICE_NAME)
 browse.start()
 
+#Initialize UDP SERVER
+
+# create dgram udp socket
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+except socket.error:
+    print 'Failed to create socket'
+    sys.exit()
+
 """
 Loop forever, read arduino input and stream it to speakers
 """
 while(1):
 
-    time.sleep(5)
+    #time.sleep(5)
 
     #Get advertised speakers
     print browse.services
@@ -105,3 +115,15 @@ while(1):
     #TODO: Create MIDI
 
     #TODO: Stream to sockets
+
+    #msg = raw_input('Enter message to send : ')
+    for key,value in browse.services.items():
+        try :
+            #Set the whole string
+            msg = "Test"
+            print "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", msg
+            s.sendto(msg, (value['hosttarget'], value['port']))
+            time.sleep(5)
+
+        except socket.error, msg:
+            print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]

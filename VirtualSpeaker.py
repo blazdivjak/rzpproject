@@ -8,6 +8,7 @@ import select
 import sys
 import pybonjour
 import settings
+import socket
 
 class AdvertiseService(threading.Thread):
     """
@@ -54,13 +55,38 @@ class AdvertiseService(threading.Thread):
 register = AdvertiseService(name=settings.SPEAKER_NAME, port=settings.PORT)
 register.start()
 
+#Initialize UDP SERVER
+port = settings.PORT
+host = settings.HOST
+
+# Datagram (udp) socket
+try :
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    print 'Socket created'
+except socket.error, msg :
+    print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    sys.exit()
+
+# Bind socket to local host and port
+try:
+    s.bind((host, port))
+except socket.error , msg:
+    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    sys.exit()
+
+print 'Socket bind complete'
+
+print "Waiting on port:", port
+
 """
 Loop forever
 """
 while(1):
-    time.sleep(60)
-    print "This program continues to run!"
 
+    #Read from socket
+    data, addr = s.recvfrom(1024)
+    print addr, ": ", data
 
+s.close()
 
 
