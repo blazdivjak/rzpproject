@@ -11,4 +11,9 @@ while True:
     line = line.split('\t')
     print line[0], "ms ",
     for i in line[1:]:
-        print i,'\t',
+        #if int(i) > 300:
+        #    print 1,'\t',
+        #else:
+        #    print 0,'\t',
+        print i, '\t',
+    print

@@ -9,6 +9,9 @@ import sys
 import pybonjour
 import settings
 import socket
+import serial
+import datetime, time
+from lib import MyMidiObject
 
 class BrowseService(threading.Thread):
     """
@@ -103,27 +106,55 @@ except socket.error:
 """
 Loop forever, read arduino input and stream it to speakers
 """
+# serial port settings
+ser = serial.Serial('/dev/ttyACM0', 9600)
+then = datetime.datetime.now() + datetime.timedelta(seconds=2)
+keysPressed = list()
 while(1):
 
     #time.sleep(5)
 
     #Get advertised speakers
-    print browse.services
+    #print browse.services
 
-    #TODO: Read from Arduino
-
-    #TODO: Create MIDI
-
+    #Read from Arduino
+    line = ser.readline()
+    line = line.split('\t')
+    '''print line[0], "ms ",
+    for i in line[1:]:
+        if int(i) > 300:
+            print 1,'\t',
+        else:
+            print 0,'\t',
+    print '''
+    try:
+        lineBool = [True if int(x) > 300 else False for x in line[1:]]
+    except Exception, err:
+        lineBool = [False for x in line[1:]]
+        print "Napaka: ", err.message
+    #print "debug", lineBool
+    if len(keysPressed) == 0:
+        keysPressed = [False for x in range(len(lineBool))]
     #Stream to sockets
 
     #msg = raw_input('Enter message to send : ')
     for key,value in browse.services.items():
         try :
             #Set the whole string
-            msg = "Test"
-            print "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", msg
-            s.sendto(msg, (value['hosttarget'], value['port']))
-            time.sleep(5)
+            for i in range(min(len(lineBool), len(keysPressed))):
+                #print "lineBoolLen:", len(lineBool), " keyPressedLen:", len(keysPressed), " i:",i
+                if lineBool[i] != keysPressed[i]:
+                    msg = settings.FIRST_NOTE + i
+                    #print "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
+                    s.sendto(str(msg), (value['hosttarget'], value['port']))
+            keysPressed = lineBool
+            if (then < datetime.datetime.now()):
+                msg = "init:" + str(settings.INSTRUMENT_ID)
+                s.sendto(msg, (value['hosttarget'], value['port']))
+                print "Init sent"
+                then = datetime.datetime.now() + datetime.timedelta(seconds=2)
 
         except socket.error, msg:
             print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+        except Exception, msg:
+            print msg.message

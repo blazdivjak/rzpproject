@@ -13,6 +13,7 @@ import pybonjour
 import settings
 import socket
 import pygame
+import pygame.midi
 
 class VirtualInstrument():
     """
@@ -28,32 +29,33 @@ class VirtualInstrument():
 
     instrument = 0
     hostname = ""
-    midiDevice = 0
+    midiDevice = -1
     midi_output = None
     keyPressed = [False for i in range(127)]
-    def __init__(self, hostname, instrument="1", midiDevice=None):
+    def __init__(self, hostname, instrument=0, midiDevice=None):
         try:
-            instrument =  int(instrument)
-        except Exception:
-            print "Instrument ni pravilnega tipa"
-            raise Exception
-        self.instrument = instrument
+            self.instrument = int(instrument.split(':')[1])
+        except Exception, err:
+            print "Instrument ni pravilnega tipa ", err.message
         self.hostname = hostname
-        if midiDevice is None:
-            self.midiDevice = pygame.midi.get_default_input_id()
+        pygame.init()
+        pygame.midi.init()
+        if midiDevice == None:
+            self.midiDevice = pygame.midi.get_default_output_id()
         else:
             self.midiDevice = midiDevice
-        pygame.init()
-        self.midi_out = pygame.midi.Output(self.midiPort, 0)
+        print self.midiDevice, " ", type(self.midiDevice)
+        self.midi_out = pygame.midi.Output(self.midiDevice, 0)
         try:
-            self.midi_out.set_instument(self.instrument)
-        except Exception:
-            print "Prislo je do napake"
+            self.midi_out.set_instrument(self.instrument)
+        except Exception, err:
+            print err.message
 
     def processData(self, data):
-        if data == "r":
+        if "init:" in data:
             # Refresh playing notes
-            self.refreshNotes()
+            #self.refreshNotes()
+            pass
         elif data == "off":
             keyPressed = [False for i in range(127)]
             self.refreshNotes()
@@ -61,7 +63,7 @@ class VirtualInstrument():
         else:
             try:
                 nota = int(data)
-                self.keyPressed[nota] != self.keyPressed[nota]
+                self.keyPressed[nota] = not self.keyPressed[nota]
             except Exception:
                 print "Prislo je do napake pri sprejemu podatkov - podatki niso pravilne oblike"
         self.refreshNotes()
@@ -71,8 +73,10 @@ class VirtualInstrument():
         for i in range(len(self.keyPressed)):
             if self.keyPressed[i]:
                 # note velocity is fixed
+                print "Prizgana nota ", i
                 self.midi_out.note_on(i,127)
-            else: self.midi_out.note_off(i,127)
+            else:
+                self.midi_out.note_off(i,127)
 
 class AdvertiseService(threading.Thread):
     """
@@ -148,6 +152,7 @@ longtimeNoSee = list()
 #Virtual instrument list
 virtualInstruments = dict()
 
+channel = 0
 """
 Loop forever
 """
@@ -155,13 +160,20 @@ while(1):
 
     #Read from socket
     data, addr = s.recvfrom(1024)
-    print addr, ": ", data
+
     #Virtual instrument missing from client list
     if addr not in virtualInstruments.keys():
-        virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, data))
+        if "init:" in data:
+            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, instrument=data))
+            print "Virtual instrument with instrument_id:", data.split(':')[1], " added"
     else:
+        virtualInstruments[addr].processData(data)
+    if False:
         if not virtualInstruments[addr].processData(data):
             del virtualInstruments[addr]
+
+    print addr, ": ", data, "    dict ", virtualInstruments
+
 
 s.close()
 

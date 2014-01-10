@@ -8,15 +8,21 @@ class MyMidiObject():
     """
     # ID number of instrument
     instrument = 0
+    # channel
+    channel = 0
+    # velocity
+    velocity = 127
     # Number of playable keys
     keysNum = 127
     # List of pressed keys
     keysPressed = [False for _ in range(keysNum)]
 
     ''' initialziation '''
-    def __init__(self, instrument, keysNum = 127):
+    def __init__(self, instrument, channel=0, velocity=127, keysNum = 127):
         self.instrument = instrument
         self.keysNum = keysNum
+        self.channel = channel
+        self.velocity = velocity
 
     ''' returns list of all keys status '''
     def getKeys(self):
@@ -38,5 +44,18 @@ class MyMidiObject():
             return False
 
     ''' returns instrument id (int) '''
+    def getInstrument(self):
+        return self.instrument
+
+    ''' getters and setters '''
+    def setInstrument(self, instrument):
+        self.instrument = instrument
+
+    def setChannel(self, channel):
+        self.channel = channel
+
+    def getChannel(self):
+        return self.channel
+
     def getInstrument(self):
         return self.instrument
