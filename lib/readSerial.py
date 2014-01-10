@@ -9,4 +9,6 @@ while True:
 	#print ser.readline()
     line = ser.readline()
     line = line.split('\t')
-    print line
+    print line[0], "ms ",
+    for i in line[1:]:
+        print i,'\t',
