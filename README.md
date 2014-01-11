@@ -10,14 +10,8 @@ FEATURES
 * Automaticly find VirtualSpeakers advertised on local network using mDNS and DNS-SD
 * Stream different MIDI instruments on local network
 
-INSTALL on RaspberryPi (Debian Weezy)
-==========
-.. code-block:: bash
-# apt-get install libavahi-compat-libdnssd-dev timidity
-.. code-block:: bash
-# pip-2.7 install pybonjour pygame
-
 CONFIGURATION
 ==========
-Instrument codes: http://www.ccarh.org/courses/253/handout/gminstruments/
+* Configure instruments and speakers in settings.py
+* MIDI Instrument codes: http://www.ccarh.org/courses/253/handout/gminstruments/
 
