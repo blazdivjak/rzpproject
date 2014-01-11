@@ -14,7 +14,7 @@ INSTALL on RaspberryPi (Debian Weezy)
 ==========
 
 ```bash
-apt-get install libavahi-compat-libdnssd-dev timidity
+apt-get install libavahi-compat-libdnssd-dev timidity python-serial avahi-daemon
 ```
 ```bash
 pip-2.7 install pybonjour pygame

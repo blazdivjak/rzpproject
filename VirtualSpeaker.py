@@ -24,8 +24,6 @@ class VirtualInstrument(threading.Thread):
     """ midi instrument codes
     0   GRAND_PIANO
     19  CHURCH_ORGAN
-    37  SLAP_BASS_1
-    41  VIOLIN
     115 STEEL_DRUMS
     """
 
