@@ -1,4 +1,4 @@
-Network of VirtualDevices playint MIDI
+Network of VirtualDevices playing MIDI
 ==========
 
 Network of VirtualSpeakers and VirtualInstruments for streaming and playing MIDI.
