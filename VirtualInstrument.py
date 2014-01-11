@@ -160,17 +160,20 @@ while(1):
                     info = "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
                     logging.debug(info)
                     s.sendto(str(msg), (value['hosttarget'], value['port']))
-            keysPressed = lineBool
+
             if (then < datetime.datetime.now()):
                 msg = "init:" + str(settings.INSTRUMENT_ID)
                 s.sendto(msg, (value['hosttarget'], value['port']))
                 logging.info("VirtualInstrument initialization sent to: %s", value['hosttarget'] )
-                then = datetime.datetime.now() + datetime.timedelta(seconds=2)
-
         except socket.error, msg:
             error_code =  'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
             logging.error("Error with socket, code: %s", error_code)
         except Exception, msg:
             logging.error("Error: %s", msg.message)
+    if (then < datetime.datetime.now()):
+        then = datetime.datetime.now() + datetime.timedelta(seconds=2)
+    keysPressed = lineBool
+
+
 
 
