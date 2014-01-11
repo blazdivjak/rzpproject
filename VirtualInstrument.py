@@ -157,21 +157,21 @@ while(1):
                 #print "lineBoolLen:", len(lineBool), " keyPressedLen:", len(keysPressed), " i:",i
                 if lineBool[i] != keysPressed[i]:
                     msg = settings.FIRST_NOTE + i
-                    info = "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
-                    logging.debug(info)
+                    #info = "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
+                    #logging.debug(info)
                     s.sendto(str(msg), (value['hosttarget'], value['port']))
 
             if (then < datetime.datetime.now()):
                 msg = "init:" + str(settings.INSTRUMENT_ID)
                 s.sendto(msg, (value['hosttarget'], value['port']))
-                logging.info("VirtualInstrument initialization sent to: %s", value['hosttarget'] )
+                #logging.info("VirtualInstrument initialization sent to: %s", value['hosttarget'] )
         except socket.error, msg:
             error_code =  'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
             logging.error("Error with socket, code: %s", error_code)
         except Exception, msg:
             logging.error("Error: %s", msg.message)
     if (then < datetime.datetime.now()):
-        then = datetime.datetime.now() + datetime.timedelta(seconds=2)
+        then = datetime.datetime.now() + datetime.timedelta(seconds=10)
     keysPressed = lineBool
 
 

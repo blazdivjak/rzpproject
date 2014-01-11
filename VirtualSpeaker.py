@@ -57,10 +57,10 @@ class VirtualInstrument(threading.Thread):
                 self.keyPressed[nota] = not self.keyPressed[nota]
                 if self.keyPressed[nota]:
                     self.midi_out.note_on(nota, 127, channel=self.channel)
-                    logging.info("Note %d on channel %d is ON", nota, self.channel)
+                    #logging.info("Note %d on channel %d is ON", nota, self.channel)
                 else:
                     self.midi_out.note_off(nota, 127, channel=self.channel)
-                    logging.info("Note %d on channel %d is OFF", nota, self.channel)
+                    #logging.info("Note %d on channel %d is OFF", nota, self.channel)
             except Exception:
                 logging.error("Received data is not in correct form.")
 
