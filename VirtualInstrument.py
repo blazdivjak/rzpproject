@@ -11,7 +11,6 @@ import settings
 import socket
 import serial
 import datetime, time
-from lib import MyMidiObject
 from logger import *
 
 class BrowseService(threading.Thread):
