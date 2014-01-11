@@ -152,6 +152,7 @@ while(1):
     #Stream to sockets
     for key,value in browse.services.items():
         try :
+            '''
             #Set the whole string
             for i in range(min(len(lineBool), len(keysPressed))):
                 #print "lineBoolLen:", len(lineBool), " keyPressedLen:", len(keysPressed), " i:",i
@@ -159,7 +160,8 @@ while(1):
                     msg = settings.FIRST_NOTE + i
                     #info = "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
                     #logging.debug(info)
-                    s.sendto(str(msg), (value['hosttarget'], value['port']))
+                    s.sendto(str(msg), (value['hosttarget'], value['port'])) '''
+            s.sendto(str(keysPressed), (value['hosttarget'], value['port']))
 
             if (then < datetime.datetime.now()):
                 msg = "init:" + str(settings.INSTRUMENT_ID)
