@@ -12,5 +12,5 @@ LOG_FOLDER='log/'
 LOG_NAME='virtualdevice.log'
 SERIAL_PORT='/dev/ttyACM0'
 BAUD_RATE = 9600
-MIDI_DEVICE=8
-PLAY_DELAY=0
+MIDI_DEVICE=8 #8 on ubuntu, 6 on rpi
+PLAY_DELAY=0 #200 for local play
