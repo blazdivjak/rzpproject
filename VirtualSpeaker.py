@@ -32,14 +32,16 @@ class VirtualInstrument():
     hostname = ""
     midiDevice = -1
     midi_output = None
+    channel = 0
     keyPressed = [False for i in range(127)]
-    def __init__(self, hostname, instrument=0, midiDevice=None):
+    def __init__(self, hostname, instrument=0, midiDevice=None, channel=0):
         try:
             self.instrument = int(instrument.split(':')[1])
         except Exception, err:
             logging.error("Instrument ni pravilnega tipa, Details: %s", err.message)
         self.hostname = hostname
         pygame.init()
+        self.channel = channel
         pygame.midi.init()
         if midiDevice == None:
             self.midiDevice = pygame.midi.get_default_output_id()
@@ -79,9 +81,9 @@ class VirtualInstrument():
                 # note velocity is fixed
                 #print "Prizgana nota ", i
                 logging.debug("Note number %s is ON.", i)
-                self.midi_out.note_on(i,127)
+                self.midi_out.note_on(i,127, channel=self.channel)
             else:
-                self.midi_out.note_off(i,127)
+                self.midi_out.note_off(i,127, channel=self.channel)
 
 class AdvertiseService(threading.Thread):
     """
@@ -146,9 +148,9 @@ register.daemon = True
 register.start()
 
 #Initialize Timidity software synthesizer to output music to your soundcard
-timidity = InitTimidity()
-timidity.daemon = True
-timidity.start()
+#timidity = InitTimidity()
+#timidity.daemon = True
+#timidity.start()
 
 #Initialize UDP SERVER
 port = settings.PORT
@@ -179,7 +181,7 @@ longtimeNoSee = list()
 #Virtual instrument list
 virtualInstruments = dict()
 
-channel = 0
+newChannel = 0
 """
 Loop forever
 """
@@ -191,8 +193,9 @@ while(1):
     #Virtual instrument missing from client list
     if addr not in virtualInstruments.keys():
         if "init:" in data:
-            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, instrument=data))
+            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, instrument=data, channel=newChannel))
             logging.info("Virtual instrument with instrument_id: %s added.", data.split(':')[1])
+            newChannel += 1
     else:
         virtualInstruments[addr].processData(data)
     if False:
