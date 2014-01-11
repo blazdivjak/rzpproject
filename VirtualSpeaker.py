@@ -46,7 +46,9 @@ class VirtualInstrument():
         else:
             self.midiDevice = midiDevice
         #print self.midiDevice, " ", type(self.midiDevice)
-        self.midi_out = pygame.midi.Output(self.midiDevice, 200) # set delay to 200 if directly connected
+        #self.midi_out = pygame.midi.Output(self.midiDevice, 0) # set delay to 200 if directly connected
+        self.midi_out = pygame.midi.Output(settings.MIDI_DEVICE, settings.PLAY_DELAY) # set delay to 200 if directly connected
+
         try:
             self.midi_out.set_instrument(self.instrument)
         except Exception, err:
@@ -127,6 +129,13 @@ register = AdvertiseService(name=settings.SPEAKER_NAME, port=settings.PORT)
 logging.info("Starting VirtualDevice named: %s", settings.SPEAKER_NAME)
 register.daemon = True
 register.start()
+
+#Initialize Timidity software synthesizer to output music to your soundcard
+try:
+    os.system("timidity -iA")
+except Exception as err:
+    logging.error("Cant start softsynth, %s", err)
+    exit()
 
 #Initialize UDP SERVER
 port = settings.PORT

@@ -97,3 +97,19 @@
 2014-01-11 14:01:23,319 - root[13629] - INFO - Starting Bonjour service advertising thread
 2014-01-11 14:01:23,320 - root[13629] - INFO - Socket created
 2014-01-11 14:01:23,320 - root[13629] - CRITICAL - Bind failed. Error Code : 48 message: Address already in use
+2014-01-11 14:08:43,961 - root[14100] - INFO - Starting VirtualDevice named: rpiSpeaker1337
+2014-01-11 14:08:43,961 - root[14100] - INFO - Starting Bonjour service advertising thread
+2014-01-11 14:08:44,110 - root[14100] - INFO - Socket created
+2014-01-11 14:08:44,111 - root[14100] - CRITICAL - Bind failed. Error Code : 48 message: Address already in use
+2014-01-11 14:08:50,991 - root[14114] - INFO - Starting VirtualDevice named: rpiSpeaker1337
+2014-01-11 14:08:50,991 - root[14114] - INFO - Starting Bonjour service browsing thread
+2014-01-11 14:08:50,991 - root[14114] - INFO - Starting service browsing: _VirtualSpeaker._udp
+2014-01-11 14:08:50,992 - root[14114] - CRITICAL - Cant find Serial port for key reading. We will now quit. Details: [Errno 2] No such file or directory: '/dev/ttyACM0'
+2014-01-11 14:13:27,989 - root[14709] - INFO - Starting VirtualDevice named: rpiSpeaker1337
+2014-01-11 14:13:27,989 - root[14709] - INFO - Starting Bonjour service advertising thread
+2014-01-11 14:13:28,270 - root[14709] - INFO - Started VirtualSpeaker Service:
+2014-01-11 14:13:28,270 - root[14709] - INFO -   name    =rpiSpeaker1337
+2014-01-11 14:13:28,270 - root[14709] - INFO -   regtype =_VirtualSpeaker._udp.
+2014-01-11 14:13:28,270 - root[14709] - INFO -   domain  =local.
+2014-01-11 14:13:28,486 - root[14709] - INFO - Socket created
+2014-01-11 14:13:28,487 - root[14709] - CRITICAL - Bind failed. Error Code : 48 message: Address already in use
