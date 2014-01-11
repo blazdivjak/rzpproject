@@ -55,14 +55,15 @@ class VirtualInstrument(threading.Thread):
             try:
                 notes = [True if "True" in x else False for x in data[1:-1].split(', ')]
                 for i in notes:
-                    i+=settings.FIRST_NOTE
-                    self.keyPressed[i] = not self.keyPressed[i]
-                    if self.keyPressed[i]:
-                        self.midi_out.note_on(i, 127, channel=self.channel)
-                        #logging.info("Note %d on channel %d is ON", i, self.channel)
+                    a = i + settings.FIRST_NOTE
+                    self.keyPressed[a] = notes[i]
+
+                    if self.keyPressed[a]:
+                        self.midi_out.note_on(a, 127, channel=self.channel)
+                        #logging.info("Note %d on channel %d is ON", a, self.channel)
                     else:
-                        self.midi_out.note_off(i, 127, channel=self.channel)
-                        #logging.info("Note %d on channel %d is OFF", i, self.channel)
+                        self.midi_out.note_off(a, 127, channel=self.channel)
+                        #logging.info("Note %d on channel %d is OFF", a, self.channel)
             except Exception:
                 logging.error("Received data is not in correct form.")
 
