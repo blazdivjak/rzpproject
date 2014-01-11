@@ -18,9 +18,9 @@ CapacitiveSensor   cs_4_5 = CapacitiveSensor(4,5);
 CapacitiveSensor   cs_4_8 = CapacitiveSensor(4,8);
 //CapacitiveSensor   cs_4_10 = CapacitiveSensor(4,10);
 //CapacitiveSensor   cs_4_12 = CapacitiveSensor(4,12);
-meritve = [ STEVILO_MERITEV * STEVILO_SENZOR_PINOV ]
-poprecje = [ STEVILO_SENZOR_PINOV ]
-stevec = 0
+int meritve[ STEVILO_MERITEV * STEVILO_SENZOR_PINOV ];
+int povprecje[ STEVILO_SENZOR_PINOV ];
+int stevec = 0;
 
 void setup()                    
 {
@@ -31,6 +31,9 @@ void setup()
    //cs_4_10.set_CS_AutocaL_Millis(0xFFFFFFFF);
    //cs_4_12.set_CS_AutocaL_Millis(0xFFFFFFFF);
    Serial.begin(9600);
+   for (int i=0; i< (STEVILO_MERITEV * STEVILO_SENZOR_PINOV); i++){
+        povprecje[i] = 0;
+   }
 }
 
 void loop()                    
@@ -47,9 +50,9 @@ void loop()
     //if (total2 > SENSI) {total2=1;}else{total2=0;}
     //if (total3 > SENSI) {total3=1;}else{total3=0;}
     for (int i=0; i < STEVILO_SENZOR_PINOV; i++){
-        poprecje[i] = 0;
+        povprecje[i] = 0;
         for (int j=0; j < STEVILO_MERITEV; j++){
-            poprecje[i] += meritve[i+j*STEVILO_MERITEV];
+            povprecje[i] += meritve[i+j*STEVILO_MERITEV];
         }
         povprecje[i] = (int) (povprecje[i] / STEVILO_MERITEV);
     }
