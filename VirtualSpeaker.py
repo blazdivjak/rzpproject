@@ -29,12 +29,7 @@ class VirtualInstrument(threading.Thread):
     115 STEEL_DRUMS
     """
 
-    instrument = 0
-    hostname = ""
-    channel = 0
-    midi_out = None
-    keyPressed = [False for _ in range(128)]
-    def __init__(self, hostname, midi_out, instrument=0, channel=0):
+    def __init__(self, hostname, midi_out, channel, instrument=0):
         try:
             self.instrument = int(instrument.split(':')[1])
         except Exception, err:
@@ -42,6 +37,7 @@ class VirtualInstrument(threading.Thread):
         self.hostname = hostname
         self.channel = channel
         self.midi_out = midi_out
+        self.keyPressed = [False for _ in range(128)]
         try:
             self.midi_out.set_instrument(self.instrument, self.channel)
         except Exception, err:
@@ -54,17 +50,16 @@ class VirtualInstrument(threading.Thread):
         else:
             try:
                 notes = [True if "True" in x else False for x in data[1:-1].split(', ')]
-                print notes
-                for i in notes:
+                for i in range(len(notes)):
                     a = i + settings.FIRST_NOTE
-                    self.keyPressed[a] = notes[i]
-
                     if notes[i]:
-                        self.midi_out.note_on(a, 127, channel=self.channel)
-                        logging.info("Note %d on channel %d is ON", a, self.channel)
+                        if not self.keyPressed[a]:
+                            self.midi_out.note_on(a, 127, channel=self.channel)
+                            logging.info("Note %d on channel %d is ON", a, self.channel)
                     else:
                         self.midi_out.note_off(a, 127, channel=self.channel)
                         logging.info("Note %d on channel %d is OFF", a, self.channel)
+                    self.keyPressed[a] = notes[i]
             except Exception:
                 logging.error("Received data is not in correct form.")
 
@@ -188,15 +183,12 @@ while(1):
     #Virtual instrument missing from client list
     if addr not in virtualInstruments.keys():
         if "init:" in data:
-            print("Added instument:", addr, " ", data, " on channel: ", newChannel)
-            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, midi_out=midi_out,  instrument=data, channel=newChannel))
+            print("Added instrument:", addr, " ", data, " on channel: ", newChannel)
+            virtualInstruments[addr] = VirtualInstrument(hostname=addr, midi_out=midi_out,  instrument=data, channel=newChannel)
             logging.info("Virtual instrument with instrument_id: %s added.", data.split(':')[1])
             newChannel += 1
     else:
         virtualInstruments[addr].processData(data)
-    if False:
-        if not virtualInstruments[addr].processData(data):
-            del virtualInstruments[addr]
 
     #print addr, ": ", data, "    dict ", virtualInstruments
 
