@@ -1,6 +1,7 @@
 rzpproject
 ==========
 
-Računalniška in zvočna produkcija, projekt (Home made synthesizer)
+Network of VirtualSpeakers and VirtualInstruments streaming and playing MIDI.
 
-timidiiy -iA &
+
+Računalniška in zvočna produkcija, projekt (Home made synthesizer)

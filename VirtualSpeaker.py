@@ -14,6 +14,7 @@ import settings
 import socket
 import pygame
 import pygame.midi
+from logger import *
 
 class VirtualInstrument():
     """
@@ -36,7 +37,7 @@ class VirtualInstrument():
         try:
             self.instrument = int(instrument.split(':')[1])
         except Exception, err:
-            print "Instrument ni pravilnega tipa ", err.message
+            logging.error("Instrument ni pravilnega tipa, Details: %s", err.message)
         self.hostname = hostname
         pygame.init()
         pygame.midi.init()
@@ -44,12 +45,13 @@ class VirtualInstrument():
             self.midiDevice = pygame.midi.get_default_output_id()
         else:
             self.midiDevice = midiDevice
-        print self.midiDevice, " ", type(self.midiDevice)
+        #print self.midiDevice, " ", type(self.midiDevice)
         self.midi_out = pygame.midi.Output(self.midiDevice, 200) # set delay to 200 if directly connected
         try:
             self.midi_out.set_instrument(self.instrument)
         except Exception, err:
-            print err.message
+            logging.error(err.message)
+            #print err.message
 
     def processData(self, data):
         if "init:" in data:
@@ -65,7 +67,7 @@ class VirtualInstrument():
                 nota = int(data)
                 self.keyPressed[nota] = not self.keyPressed[nota]
             except Exception:
-                print "Prislo je do napake pri sprejemu podatkov - podatki niso pravilne oblike"
+                logging.error("Received data is not in correct form.")
         self.refreshNotes()
 
 
@@ -73,7 +75,8 @@ class VirtualInstrument():
         for i in range(len(self.keyPressed)):
             if self.keyPressed[i]:
                 # note velocity is fixed
-                print "Prizgana nota ", i
+                #print "Prizgana nota ", i
+                logging.debug("Note number %s is ON.", i)
                 self.midi_out.note_on(i,127)
             else:
                 self.midi_out.note_off(i,127)
@@ -88,15 +91,15 @@ class AdvertiseService(threading.Thread):
         self.regType = regType
         self.port = port
     def run(self):
-        print "Starting thread"
+        logging.info("Starting Bonjour service advertising thread")
         self.register_service(self.name, self.regType, self.port)
 
     def register_callback(self, sdRef, flags, errorCode, name, regtype, domain):
         if errorCode == pybonjour.kDNSServiceErr_NoError:
-            print 'Started VirtualSpeaker Service:'
-            print '  name    =', name
-            print '  regtype =', regtype
-            print '  domain  =', domain
+            logging.info('Started VirtualSpeaker Service:')
+            logging.info('  name    =%s', name)
+            logging.info('  regtype =%s', regtype)
+            logging.info('  domain  =%s', domain)
 
     def register_service(self, name='rpiSpeaker01', regtype='_VirtualSpeaker._udp', port=3333):
         sdRef = pybonjour.DNSServiceRegister(name = name,
@@ -121,6 +124,8 @@ class AdvertiseService(threading.Thread):
 
 #Start background Service Advertisment
 register = AdvertiseService(name=settings.SPEAKER_NAME, port=settings.PORT)
+logging.info("Starting VirtualDevice named: %s", settings.SPEAKER_NAME)
+register.daemon = True
 register.start()
 
 #Initialize UDP SERVER
@@ -130,21 +135,21 @@ host = settings.HOST
 # Datagram (udp) socket
 try :
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    print 'Socket created'
+    logging.info('Socket created')
 except socket.error, msg :
-    print 'Failed to create socket. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    logging.error('Failed to create socket. Error Code : %s message: %s',str(msg[0]), msg[1])
     sys.exit()
 
 # Bind socket to local host and port
 try:
     s.bind((host, port))
 except socket.error , msg:
-    print 'Bind failed. Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+    logging.fatal('Bind failed. Error Code : %s message: %s', str(msg[0]),msg[1])
     sys.exit()
 
-print 'Socket bind complete'
+logging.info('Socket bind complete')
 
-print "Waiting on port:", port
+logging.info("Waiting on port: %s", port)
 
 #Check for connection loss and remove virtual instrument accordingly
 longtimeNoSee = list()
@@ -165,14 +170,14 @@ while(1):
     if addr not in virtualInstruments.keys():
         if "init:" in data:
             virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, instrument=data))
-            print "Virtual instrument with instrument_id:", data.split(':')[1], " added"
+            logging.info("Virtual instrument with instrument_id: %s added.", data.split(':')[1])
     else:
         virtualInstruments[addr].processData(data)
     if False:
         if not virtualInstruments[addr].processData(data):
             del virtualInstruments[addr]
 
-    print addr, ": ", data, "    dict ", virtualInstruments
+    #print addr, ": ", data, "    dict ", virtualInstruments
 
 
 s.close()

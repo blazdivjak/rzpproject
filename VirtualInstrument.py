@@ -12,6 +12,7 @@ import socket
 import serial
 import datetime, time
 from lib import MyMidiObject
+from logger import *
 
 class BrowseService(threading.Thread):
     """
@@ -24,7 +25,8 @@ class BrowseService(threading.Thread):
         self.timeout = 5
         self.services = {}
     def run(self):
-        print "Starting thread"
+        #print "Starting thread"
+        logging.info("Starting Bonjour service browsing thread")
         self.resolve_service(self.regType)
 
     def resolve_callback(self, sdRef, flags, interfaceIndex, errorCode, fullname,
@@ -44,12 +46,14 @@ class BrowseService(threading.Thread):
             return
 
         if not (flags & pybonjour.kDNSServiceFlagsAdd):
-            print 'Service removed'
+            #print 'Service removed'
+            logging.info("Service removed")
             if serviceName in self.services.keys():
                 del self.services[serviceName]
             return
 
-        print 'Service added; resolving'
+        #print 'Service added; resolving'
+        logging.info("Service added; resolving")
 
         resolve_sdRef = pybonjour.DNSServiceResolve(0,
                                                     interfaceIndex,
@@ -62,7 +66,7 @@ class BrowseService(threading.Thread):
             while not self.resolved:
                 ready = select.select([resolve_sdRef], [], [], self.timeout)
                 if resolve_sdRef not in ready[0]:
-                    print 'Resolve timed out'
+                    logging.info('Resolve timed out')
                     break
                 pybonjour.DNSServiceProcessResult(resolve_sdRef)
             else:
@@ -92,7 +96,12 @@ class BrowseService(threading.Thread):
 
 #Start background Service Resolution (Searching for speakers)
 browse = BrowseService(settings.SERVICE_NAME)
+logging.info("Starting VirtualDevice named: %s", settings.SPEAKER_NAME)
+browse.daemon=True
 browse.start()
+
+logging.info("Starting service browsing: %s", settings.SERVICE_NAME)
+
 
 #Initialize UDP SERVER
 
@@ -100,19 +109,23 @@ browse.start()
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 except socket.error:
-    print 'Failed to create socket'
+    logging.error("Error, failed to create socket")
+    #print 'Failed to create socket'
     sys.exit()
 
 """
 Loop forever, read arduino input and stream it to speakers
 """
 # serial port settings
-ser = serial.Serial('/dev/ttyACM0', 9600)
+try:
+    ser = serial.Serial(settings.SERIAL_PORT, settings.BAUD_RATE)
+except Exception as err:
+    logging.fatal("Cant find Serial port for key reading. We will now quit. Details: %s", err)
+    exit()
+
 then = datetime.datetime.now() + datetime.timedelta(seconds=2)
 keysPressed = list()
 while(1):
-
-    #time.sleep(5)
 
     #Get advertised speakers
     #print browse.services
@@ -131,14 +144,12 @@ while(1):
         lineBool = [True if int(x) > 300 else False for x in line[1:]]
     except Exception, err:
         lineBool = [False for x in line[1:]]
-        print "Napaka: ", err.message
-    #print "debug", lineBool
+        logging.error("Error: %s", err.message)
+
     if len(keysPressed) == 0:
         keysPressed = [False for x in range(len(lineBool))]
-    #Stream to sockets
 
-    #msg = raw_input('Enter message to send : ')
-    #print browse.services.items()
+    #Stream to sockets
     for key,value in browse.services.items():
         try :
             #Set the whole string
@@ -146,18 +157,20 @@ while(1):
                 #print "lineBoolLen:", len(lineBool), " keyPressedLen:", len(keysPressed), " i:",i
                 if lineBool[i] != keysPressed[i]:
                     msg = settings.FIRST_NOTE + i
-                    #print "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
+                    info = "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
+                    logging.debug(info)
                     s.sendto(str(msg), (value['hosttarget'], value['port']))
+            keysPressed = lineBool
             if (then < datetime.datetime.now()):
                 msg = "init:" + str(settings.INSTRUMENT_ID)
                 s.sendto(msg, (value['hosttarget'], value['port']))
-                #print "Init sent to ", value['hosttarget']
-
+                logging.info("VirtualInstrument initialization sent to: %s", value['hosttarget'] )
+                then = datetime.datetime.now() + datetime.timedelta(seconds=2)
 
         except socket.error, msg:
-            print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            error_code =  'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
+            logging.error("Error with socket, code: %s", error_code)
         except Exception, msg:
-            print msg.message
-    keysPressed = lineBool
-    if (then < datetime.datetime.now()):
-        then = datetime.datetime.now() + datetime.timedelta(seconds=2)
+            logging.error("Error: %s", msg.message)
+
+
