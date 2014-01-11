@@ -1,3 +1,4 @@
+import logging
 from setuptools.command.build_ext import if_dl
 from numpy.core.multiarray import zeros
 
@@ -16,7 +17,7 @@ import pygame
 import pygame.midi
 from logger import *
 
-class VirtualInstrument():
+class VirtualInstrument(threading.Thread):
     """
     Class for playing virtual instrument bonded via socket
     """
@@ -30,60 +31,38 @@ class VirtualInstrument():
 
     instrument = 0
     hostname = ""
-    midiDevice = -1
-    midi_output = None
     channel = 0
-    keyPressed = [False for i in range(127)]
-    def __init__(self, hostname, instrument=0, midiDevice=None, channel=0):
+    midi_out = None
+    keyPressed = [False for _ in range(128)]
+    def __init__(self, hostname, midi_out, instrument=0, channel=0):
         try:
             self.instrument = int(instrument.split(':')[1])
         except Exception, err:
             logging.error("Instrument ni pravilnega tipa, Details: %s", err.message)
         self.hostname = hostname
-        pygame.init()
         self.channel = channel
-        pygame.midi.init()
-        if midiDevice == None:
-            self.midiDevice = pygame.midi.get_default_output_id()
-        else:
-            self.midiDevice = midiDevice
-        #print self.midiDevice, " ", type(self.midiDevice)
-        #self.midi_out = pygame.midi.Output(self.midiDevice, 0) # set delay to 200 if directly connected
-        self.midi_out = pygame.midi.Output(settings.MIDI_DEVICE, settings.PLAY_DELAY) # set delay to 200 if directly connected
-
+        self.midi_out = midi_out
         try:
-            self.midi_out.set_instrument(self.instrument)
+            self.midi_out.set_instrument(self.instrument, self.channel)
         except Exception, err:
             logging.error(err.message)
             #print err.message
 
     def processData(self, data):
         if "init:" in data:
-            # Refresh playing notes
-            #self.refreshNotes()
             pass
-        elif data == "off":
-            keyPressed = [False for i in range(127)]
-            self.refreshNotes()
-            return False
         else:
             try:
                 nota = int(data)
                 self.keyPressed[nota] = not self.keyPressed[nota]
+                if self.keyPressed[nota]:
+                    self.midi_out.note_on(nota, 127, channel=self.channel)
+                    logging.info("Note %d on channel %d is ON", nota, self.channel)
+                else:
+                    self.midi_out.note_off(nota, 127, channel=self.channel)
+                    logging.info("Note %d on channel %d is OFF", nota, self.channel)
             except Exception:
                 logging.error("Received data is not in correct form.")
-        self.refreshNotes()
-
-
-    def refreshNotes(self):
-        for i in range(len(self.keyPressed)):
-            if self.keyPressed[i]:
-                # note velocity is fixed
-                #print "Prizgana nota ", i
-                logging.debug("Note number %s is ON.", i)
-                self.midi_out.note_on(i,127, channel=self.channel)
-            else:
-                self.midi_out.note_off(i,127, channel=self.channel)
 
 class AdvertiseService(threading.Thread):
     """
@@ -147,6 +126,18 @@ logging.info("Starting VirtualDevice named: %s", settings.SPEAKER_NAME)
 register.daemon = True
 register.start()
 
+logging.info("Initializing pygame midi")
+try:
+    pygame.init()
+    pygame.midi.init()
+    port = pygame.midi.get_default_output_id()
+    #port = settings.PORT
+    logging.info("Using midi output_id :%s:", port)
+    midi_out = pygame.midi.Output(port, 0)
+except Exception as err:
+    logging.error(err)
+    exit()
+
 #Initialize Timidity software synthesizer to output music to your soundcard
 #timidity = InitTimidity()
 #timidity.daemon = True
@@ -193,7 +184,8 @@ while(1):
     #Virtual instrument missing from client list
     if addr not in virtualInstruments.keys():
         if "init:" in data:
-            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, instrument=data, channel=newChannel))
+            print("Added instument:", addr, " ", data, " on channel: ", newChannel)
+            virtualInstruments.setdefault(addr, VirtualInstrument(hostname=addr, midi_out=midi_out,  instrument=data, channel=newChannel))
             logging.info("Virtual instrument with instrument_id: %s added.", data.split(':')[1])
             newChannel += 1
     else:
