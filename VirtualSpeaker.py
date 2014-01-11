@@ -45,7 +45,7 @@ class VirtualInstrument():
         else:
             self.midiDevice = midiDevice
         print self.midiDevice, " ", type(self.midiDevice)
-        self.midi_out = pygame.midi.Output(self.midiDevice, 0)
+        self.midi_out = pygame.midi.Output(self.midiDevice, 200) # set delay to 200 if directly connected
         try:
             self.midi_out.set_instrument(self.instrument)
         except Exception, err:

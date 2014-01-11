@@ -138,6 +138,7 @@ while(1):
     #Stream to sockets
 
     #msg = raw_input('Enter message to send : ')
+    #print browse.services.items()
     for key,value in browse.services.items():
         try :
             #Set the whole string
@@ -147,14 +148,16 @@ while(1):
                     msg = settings.FIRST_NOTE + i
                     #print "Sending message to ",value['hosttarget'] ,"on port ",value['port'], ": ", str(msg)
                     s.sendto(str(msg), (value['hosttarget'], value['port']))
-            keysPressed = lineBool
             if (then < datetime.datetime.now()):
                 msg = "init:" + str(settings.INSTRUMENT_ID)
                 s.sendto(msg, (value['hosttarget'], value['port']))
-                print "Init sent"
-                then = datetime.datetime.now() + datetime.timedelta(seconds=2)
+                #print "Init sent to ", value['hosttarget']
+
 
         except socket.error, msg:
             print 'Error Code : ' + str(msg[0]) + ' Message ' + msg[1]
         except Exception, msg:
             print msg.message
+    keysPressed = lineBool
+    if (then < datetime.datetime.now()):
+        then = datetime.datetime.now() + datetime.timedelta(seconds=2)
