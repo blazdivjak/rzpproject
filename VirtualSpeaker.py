@@ -130,8 +130,8 @@ logging.info("Initializing pygame midi")
 try:
     pygame.init()
     pygame.midi.init()
-    port = pygame.midi.get_default_output_id()
-    #port = settings.PORT
+    #port = pygame.midi.get_default_output_id()
+    port = settings.PORT
     logging.info("Using midi output_id :%s:", port)
     midi_out = pygame.midi.Output(port, 0)
 except Exception as err:
