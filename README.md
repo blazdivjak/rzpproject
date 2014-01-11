@@ -7,7 +7,7 @@ Project @ Faculty of Computer and Information Science in Ljubljana, 2013/2014.
 FEATURES
 ==========
 * Read keys pressed with capacity sensing on arduino
-* Automaticly find VirtualSpeakers advertised on local network using mDNS and DNS-SD
+* Automatically find VirtualSpeakers advertised on local network using mDNS and DNS-SD
 * Stream different MIDI instruments on local network
 
 INSTALL on RaspberryPi (Debian Weezy)

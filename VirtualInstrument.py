@@ -141,7 +141,7 @@ while(1):
             print 0,'\t',
     print '''
     try:
-        lineBool = [True if int(x) > 300 else False for x in line[1:]]
+        lineBool = [True if int(x) > settings.CAPACITIVE_LIMIT else False for x in line[1:]]
     except Exception, err:
         lineBool = [False for x in line[1:]]
         logging.error("Error: %s", err.message)
