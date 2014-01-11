@@ -25,6 +25,7 @@ CONFIGURATION
 * Configure instruments and speakers in settings.py
 * MIDI Instrument codes: http://www.ccarh.org/courses/253/handout/gminstruments/
 * Start SoftSynth
+
 ```bash
 service timidity start
 ```
