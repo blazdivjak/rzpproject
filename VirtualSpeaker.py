@@ -120,6 +120,21 @@ class AdvertiseService(threading.Thread):
         finally:
             sdRef.close()
 
+class InitTimidity(threading.Thread):
+    """
+    Class for software synthesizer timidity. It runs in a seperate thread in the background
+    """
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        logging.info("Starting TiMidity in ALSA server mode")
+        try:
+            os.system("timidity -iA")
+        except Exception as err:
+            logging.error("Cant start softsynth, %s", err)
+            exit()
+
 #####
 #MAIN
 #####
@@ -131,11 +146,9 @@ register.daemon = True
 register.start()
 
 #Initialize Timidity software synthesizer to output music to your soundcard
-try:
-    os.system("timidity -iA")
-except Exception as err:
-    logging.error("Cant start softsynth, %s", err)
-    exit()
+timidity = InitTimidity()
+timidity.daemon = True
+timidity.start()
 
 #Initialize UDP SERVER
 port = settings.PORT
