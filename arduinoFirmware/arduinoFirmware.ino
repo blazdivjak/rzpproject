@@ -47,21 +47,24 @@ void loop()
     //if (total2 > SENSI) {total2=1;}else{total2=0;}
     //if (total3 > SENSI) {total3=1;}else{total3=0;}
     for (int i=0; i < STEVILO_SENZOR_PINOV; i++){
-      poprecje[i] = 0
-      for (int j=0; j < STEVILO_MERITEV; j++){
-        poprecje[i] += meritve[i+i*j]
-      }
+        poprecje[i] = 0;
+        for (int j=0; j < STEVILO_MERITEV; j++){
+            poprecje[i] += meritve[i+j*STEVILO_MERITEV];
+        }
+        povprecje[i] = (int) (povprecje[i] / STEVILO_MERITEV);
     }
 
     Serial.print(millis() - start);        // check on performance in milliseconds
     Serial.print("\t");                    // tab character for debug windown spacing
-
-    Serial.print(total1);                  // print sensor output 1
+    Serial.print(povprecje[0]);                  // print sensor output 1
     Serial.print("\t");
-    Serial.print(total2);                  // print sensor output 2
+    Serial.print(povprecje[1]);                  // print sensor output 2
     Serial.print("\t");
-    Serial.println(total3);                // print sensor output 3
+    Serial.println(povprecje[2]);                // print sensor output 3
 
     delay(10);                             // arbitrary delay to limit data to serial port 
-    meritve += STEVILO_SENZOR_PINOV
+    stevec += STEVILO_MERITEV;
+    if(stevec >= STEVILO_MERITEV * STEVILO_SENZOR_PINOV){
+        stevec = 0;
+    }
 }
