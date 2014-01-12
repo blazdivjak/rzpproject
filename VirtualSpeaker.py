@@ -17,7 +17,7 @@ import pygame
 import pygame.midi
 from logger import *
 
-class VirtualInstrument(threading.Thread):
+class VirtualInstrument():
     """
     Class for playing virtual instrument bonded via socket
     """
