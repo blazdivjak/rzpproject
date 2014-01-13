@@ -8,7 +8,7 @@ SERVICE_NAME = '_VirtualSpeaker._udp'
 # ID codes: http://www.ccarh.org/courses/253/handout/gminstruments/
 INSTRUMENT_ID = 0
 FIRST_NOTE = 60
-LOG_FOLDER='log/'
+LOG_FOLDER='/opt/rzpproject/log/'
 LOG_NAME='virtualdevice.log'
 SERIAL_PORT='/dev/ttyACM0'
 BAUD_RATE = 9600

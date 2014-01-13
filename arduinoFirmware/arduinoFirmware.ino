@@ -1,12 +1,4 @@
 #include <CapacitiveSensor.h>
-/*
- * CapitiveSense Library Demo Sketch
- * Paul Badger 2008
- * Uses a high value resistor e.g. 10 megohm between send pin and receive pin
- * Resistor effects sensitivity, experiment with values, 50 kilohm - 50 megohm. Larger resistor values yield larger sensor values.
- * Receive pin is the sensor pin - try different amounts of foil/metal on this pin
- * Best results are obtained if sensor foil and wire is covered with an insulator such as paper or plastic sheet
- */
 
 #define SENSI 200
 #define STEVILO_MERITEV 5
