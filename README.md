@@ -24,8 +24,13 @@ CONFIGURATION
 ==========
 * Configure instruments and speakers in settings.py
 * MIDI Instrument codes: http://www.ccarh.org/courses/253/handout/gminstruments/
-* Start SoftSynth
+* Start SoftSynth (we recommend to check if service is already running
 
 ```bash
 service timidity start
 ```
+* configuring number of sensor pins on Arduino board
+If you are familiar with Arduino boards this should be fairly easy:
+- Edit parameter ```STEVILO_SENZOR_PINOV``` to appropriate value
+- Add new sensor like ```CapacitiveSensor   cs_4_12 = CapacitiveSensor(4,12);``` and donst forget to check settings in setup loop.
+- Modify settings in loop() - don't forget to print to serial the new value
